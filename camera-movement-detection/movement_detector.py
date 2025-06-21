@@ -42,8 +42,3 @@ def detect_camera_movement(frame_dir, threshold=50, min_matches=10):
             movement_frames.append(i + 1)
 
     return movement_frames
-
-# Örnek kullanım
-if __name__ == "__main__":
-    result = detect_camera_movement("frames_video_0")
-    print("Kamera hareketi algılanan kareler:", result)
