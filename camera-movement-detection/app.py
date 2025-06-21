@@ -5,9 +5,9 @@ from PIL import Image
 import streamlit as st
 import tempfile
 
-from movement_detector import detect_camera_movement
-from movement_detector_optical import detect_camera_movement_optical
-from movement_detector_affine import detect_camera_movement_affine
+from detectors.movement_detector import detect_camera_movement
+from detectors.movement_detector_optical import detect_camera_movement_optical
+from detectors.movement_detector_affine import detect_camera_movement_affine
 
 st.set_page_config(layout="wide")
 st.title("📸 Camera Movement Detection")
@@ -32,7 +32,9 @@ else:
     st.info("Affine model eşik değeri (threshold), sahnedeki global hareketin büyüklüğünü ölçer. Minimum feature sayısı, takip edilmesi gereken köşe sayısını belirtir. Bu yöntem sadece sahne genelinde tekdüze hareket varsa hareketi algılar.")
 
 uploaded_file = st.file_uploader("📂 Video veya GIF Yükle (.mp4 / .gif)", type=["mp4", "gif"])
-available_dirs = [d for d in os.listdir() if d.startswith("frames_video_")]
+frame_root = "frames"
+os.makedirs(frame_root, exist_ok=True)
+available_dirs = [os.path.join(frame_root, d) for d in os.listdir(frame_root) if d.startswith("frames_video_")]
 selected_dir = st.radio("🗂️ Hazır Frame Klasörü Seç", available_dirs, index=0)
 
 def extract_frames_from_video(video_path, output_dir, progress_placeholder):
