@@ -62,18 +62,18 @@ def detect_camera_movement_affine(frame_dir, threshold=2.0, min_features=100):
         dy = M[1, 2]
         shift = np.sqrt(dx**2 + dy**2)
 
-        # print(f"[{i}] shift={shift:.2f}")
+        
 
         if shift > threshold:
             movement_frames.append(i + 1)
 
-        # Hazırlık: bir sonraki kare için güncelle
+        #  bir sonraki kare için güncelle
         prev_pts = cv2.goodFeaturesToTrack(gray2, maxCorners=500, qualityLevel=0.01, minDistance=10)
         prev_gray = gray2
 
     return movement_frames
 
-# Örnek test
+# Örneğin
 if __name__ == "__main__":
     frames = detect_camera_movement_affine("frames_video_0", threshold=2.0)
     print("Kamera hareketi algılanan kareler:", frames)
