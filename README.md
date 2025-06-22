@@ -1,112 +1,110 @@
 # 🎥 Camera Movement Detection
 
-Bu proje, sabit bir kameradan alınan video veya görüntü dizilerinde **kamera hareketini** tespit etmek için geliştirilmiştir.  
-Amaç; sahnedeki nesne hareketlerinden bağımsız olarak, yalnızca **kameranın pan, tilt, kayma veya sarsılma gibi fiziksel değişimlerini** belirlemektir.
+This project is developed to detect **camera motion** in video or image sequences from a static camera.  
+The goal is to determine only the **physical changes of the camera** (e.g., pan, tilt, shift, shake), independently of object movements in the scene.
 
 ---
 
-## 🔍 Proje Özeti
+##  Project Summary
 
-- **Giriş:** Video izleme sistemlerinde, sahne içi nesne hareketinden ziyade **kamera oynama** (örn. oynatılmış güvenlik kamerası) önemli bir durumdur.
-- **Çözüm:** Ardışık kareler arasında `ORB feature matching`, `Optical Flow` ve `Affine` yöntemleriyle global hareket hesaplandı.
-- **Algılama:** Hesaplanan dönüşümlerden elde edilen translasyon değerlerine göre "significant movement" kararları verildi.
+- **Motivation:** In video surveillance systems, detecting **camera movement** (e.g., tampering) is often more critical than detecting object motion.
+- **Solution:** Global motion was calculated using `ORB feature matching`, `Optical Flow`, and `Affine` methods between consecutive frames.
+- **Detection:** Translation values derived from the transformations are used to decide if there is "significant movement."
 
 ---
 
-## ⚙️ Kullanılan Teknolojiler
+##  Technologies Used
 
 - Python
 - OpenCV (ORB, Homography, Optical Flow, Affine)
-- Streamlit (Web arayüzü)
+- Streamlit (Web UI)
 - Hugging Face `syCen/CameraBench` dataset
 - SMTP
 - Docker
 
 ---
 
-## 🧠 Algoritmaların Açıklamaları
+##  Algorithm Descriptions
 
 ### 🔹 ORB + Homography
 
-- Amaç: Ardışık kareler arasında ortak noktaları (`keypoints`) tespit ederek global kamera hareketini bulmak.
-- Yöntem:
+- **Purpose:** Detect global camera movement by identifying and matching keypoints between consecutive frames.
+- **Method:**
+  1. Use ORB (Oriented FAST and Rotated BRIEF) to extract prominent keypoints.
+  2. Match keypoints between frames.
+  3. Analyze the homography matrix to determine if the motion is from the camera or objects.
 
-1. ORB (Oriented FAST and Rotated BRIEF) ile her karede öne çıkan noktalar çıkarılır.
-2. Bu noktalar eşleştirilir.
-3. Homografi matrisi ile bu eşleşmenin sahneye mi yoksa kameraya mı ait olduğu analiz edilir.
-
-- Avantaj: Nesne hareketinden daha çok kamera hareketine odaklanır.
-- Sınırlama: El hareketi gibi bölgesel değişiklikler homografi ile bazen yanlış pozitif yaratabilir.
+- **Advantage:** Focuses more on camera movement than object motion.
+- **Limitation:** May produce false positives on local motion like hand waving.
 
 ### 🔹 Optical Flow
 
-- Amaç: Her pikselin hareketini izleyerek sahnedeki hareketin yönü ve yoğunluğunu ölçmek.
-- Yöntem:
+- **Purpose:** Track per-pixel motion to estimate direction and intensity of movement.
+- **Method:**
+  1. Compute optical flow between two frames using Farneback method.
+  2. Calculate mean flow magnitude and variance.
+  3. High mean + low variance = likely camera movement.
 
-1. Farneback yöntemiyle iki kare arasındaki piksel değişimleri hesaplanır.
-2. Bu akışın ortalama büyüklüğü (`mean_shift`) ve varyansı (`variance`) alınır.
-3. Yüksek ortalama + düşük varyans = kamera hareketi.
-
-- Avantaj: El/kol gibi lokal nesne hareketlerini varyans filtresiyle eleyebilir.
-- Sınırlama: Çok küçük kamera hareketlerini kaçırabilir.
+- **Advantage:** Filters out local object motion like hand/arm using variance.
+- **Limitation:** May miss very small camera shakes.
 
 ### 🔹 Affine + Good Features
 
-- Amaç: Sahnenin genel dönüşümünü (dönme, kayma, ölçekleme) modelleyerek kamera hareketini ölçmek.
-- Yöntem:
+- **Purpose:** Model the global scene transformation (translation, rotation, scaling) to estimate camera movement.
+- **Method:**
+  1. Detect strong corners using Harris or Shi-Tomasi.
+  2. Track these corners across frames.
+  3. Analyze the affine transformation matrix.
 
-1. Harris veya Shi-Tomasi corner detection ile sahnedeki güçlü noktalar bulunur.
-2. Bu noktalar takip edilir ve affine dönüşüm matrisi çıkarılır.
-3. Dönüşümün translasyon kısmı analiz edilir.
-
-- Avantaj: Sahnedeki genel yapıya duyarlıdır.
-- Sınırlama: Çok az köşe bulunursa sonuç kararsız olabilir
+- **Advantage:** Sensitive to overall scene geometry.
+- **Limitation:** Unstable if too few corners are detected.
 
 ---
 
-## 🚀 Uygulama Adımları
+## 🚀 Setup Steps
 
-### 1. Kurulum
+### 1. Installation
 
 ```bash
 git clone https://github.com/Arifkarakilic/camera-movement-detector.git
 cd camera-movement-detector
 python -m venv .venv
-source .venv/bin/activate  # Windows
+source .venv/bin/activate  # For Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. ✉️ Gerçek Zamanlı Mail Uyarısı İçin Yapılandırması
+### 2.  Real-Time Email Alerts (SMTP Setup)
 
-⚠️ "Gerçek Zamanlı Kamera" özelliği sadece lokal ortamda çalışır. Streamlit Cloud bu özelliği desteklemez.
+⚠️ "Real-Time Camera" feature works **only in local environments**. Streamlit Cloud does not support this.
 
-Proje kök dizinine `.env` dosyası oluşturun ve aşağıdaki bilgileri girin:
+Create a `.env` file in the root directory and add:
+
 ```ini
-    SMTP_USER=youremail@gmail.com
-    SMTP_PASSWORD=uygulama_sifresi
-    RECEIVER_EMAIL=hedefmail@gmail.com
+SMTP_USER=youremail@gmail.com
+SMTP_PASSWORD=your_app_password
+RECEIVER_EMAIL=targetmail@gmail.com
 ```
 
-Mail, kamera hareketi algılandığında otomatik olarak gönderilir. Stream akışı etkilenmesin diye SMTP işlemi arka planda `threading` ile çalıştırılır.
+When motion is detected via live camera, an alert email will be sent.  
+SMTP is handled in the background using `threading` so streaming is not interrupted.
 
-
-### 3. Uygulamayı Başlat
+### 3. Launch the App
 
 ```bash
 streamlit run camera-movement-detection/app.py
 ```
 
-### 4. Kullanım
+### 4. How to Use
 
-- 📂 Hazır frame klasörlerinden birini seçebilir.
-- 📹 `.mp4` veya `.gif` video yükleyebilir.
-- 🎚️ Eşik değerlerini ayarlayarak hassasiyetle oynayabilir.
-- 📊 Tespit edilen hareketli kareleri görsel olarak inceleyebilir.
-- 📊 Gerçek zamanlı kamera takibi ile hareket algılanmasında mail gönderebilir.
+-  Select from available frame folders
+-  Upload `.mp4` or `.gif` files
+-  Tune detection sensitivity using sliders
+-  Visually inspect detected motion frames
+-  Trigger alert emails during real-time detection
 
 ---
 
-## 📦 Dosya Yapısı
+## 📦 Project Structure
 
 ```bash
 camera-movement-detector/
@@ -129,45 +127,47 @@ camera-movement-detector/
 
 ---
 
-## 📈 Örnek Çıktılar
+##  Sample Output
 
 ```text
-Kamera hareketi algılanan kareler: [13, 14, 15, 30]
+Detected camera motion frames: [13, 14, 15, 30]
 ```
 
-Her bir kare ayrı görsel olarak sunulur.
+Each frame is displayed as an image.
 
 ---
 
-## 🐳 Docker ile Çalıştırma
+## 🐳 Run with Docker
 
-Bu projeyi Docker kullanarak izole bir ortamda çalıştırabilirsiniz.
+You can run this project in an isolated environment using Docker.
 
-### 1. Dockerfile ile
+### 1. With Dockerfile
 
 ```bash
 docker build -t camera-app .
 docker run -p 8501:8501 --env-file .env camera-app
 ```
-> `.env` dosyasının `.dockerignore` içine eklendiğinden emin olun.
----
 
-## 🌐 Canlı Uygulama
-
-### 🔗 [Uygulamayı Buradan Deneyin](https://camera-movement-detector.streamlit.app/)
-
-### 📁 [GitHub Reposu](https://github.com/Arifkarakilic/camera-movement-detector)
+> Make sure `.env` is added to `.dockerignore`.
 
 ---
 
-## 🤖 Destek & AI Kullanımı
+## 🌐 Live App
 
-Bu projede bazı bileşenler AI yardımıyla tasarlanmış ve optimize edilmiştir (OpenAI / ChatGPT destekli).
+### 🔗 [Try the Live Demo](https://camera-movement-detector.streamlit.app/)
+
+### 🔗 [GitHub Repo](https://github.com/Arifkarakilic/camera-movement-detector)
 
 ---
 
-## 📄 Kaynaklar
+##  AI Assistance
 
-- https://huggingface.co/datasets/syCen/CameraBench
-- https://docs.opencv.org
-- https://streamlit.io
+Some parts of this project were assisted and optimized with AI (OpenAI / ChatGPT).
+
+---
+
+##  References
+
+- https://huggingface.co/datasets/syCen/CameraBench  
+- https://docs.opencv.org  
+- https://streamlit.io  
