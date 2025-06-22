@@ -78,6 +78,8 @@ pip install -r requirements.txt
 
 ### 2. ✉️ Gerçek Zamanlı Mail Uyarısı İçin Yapılandırması
 
+⚠️ "Gerçek Zamanlı Kamera" özelliği sadece lokal ortamda çalışır. Streamlit Cloud bu özelliği desteklemez.
+
 Proje kök dizinine `.env` dosyası oluşturun ve aşağıdaki bilgileri girin:
 ```ini
     SMTP_USER=youremail@gmail.com
