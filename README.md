@@ -156,6 +156,15 @@ Detected camera motion frames: [13, 14, 15, 30]
 
 Each frame is displayed as an image.
 
+
+![image](https://github.com/user-attachments/assets/14659f93-0501-4239-a482-f0381c0e36a3)
+
+
+#### SMTP mail sample output
+
+![image](https://github.com/user-attachments/assets/5cdaecef-5b55-4d61-9d59-af28dbcd6da7)
+
+
 ---
 
 ## 🐳 Run with Docker
