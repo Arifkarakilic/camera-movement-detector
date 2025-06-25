@@ -1,7 +1,31 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-*.DS_Store
-.toml
-.lock
-.venv
+*.pyd
+
+# Virtual env
+.venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml
+*.log
+
+# Videos & temp
+frames/
+temp/
+*.mp4
+*.gif
+
+# Env
+.env

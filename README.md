@@ -16,11 +16,13 @@ The goal is to determine only the **physical changes of the camera** (e.g., pan,
 ##  Technologies Used
 
 - Python
+- Pillow, NumPy
 - OpenCV (ORB, Homography, Optical Flow, Affine)
 - Streamlit (Web UI)
 - Hugging Face `syCen/CameraBench` dataset
 - SMTP
 - Docker
+- Pytest
 
 ---
 
@@ -104,25 +106,44 @@ streamlit run camera-movement-detection/app.py
 
 ---
 
+ ### 5. Testing
+
+```
+pytest tests/test_file_utils.py
+```
+
 ## 📦 Project Structure
 
 ```bash
-camera-movement-detector/
-├── README.md
-└── camera-movement-detection/
-    ├── app.py
-    ├── camera_loader.py
-    ├── detectors/
-    │   ├── movement_detector.py
-    │   ├── movement_detector_affine.py
-    │   └── movement_detector_optical.py
-    ├── frames/
-    ├── send_mail.py
-    ├── requirements.txt
-    ├── .env
-    ├── Dockerfile
-    └── .streamlit/
-        └── config.toml
+camera-movement-detection/
+├── app.py                     
+├── config.py                  
+├── detectors/                 
+│   ├── movement_detector.py
+│   ├── movement_detector_affine.py
+│   └── movement_detector_optical.py
+├── logic/                    
+│   ├── realtime_detector.py
+│   └── video_processor.py
+├── ui/                        
+│   ├── sidebar.py
+│   ├── realtime_view.py
+│   └── video_analysis_view.py
+├── utils/                     
+│   ├── file_utils.py
+│   ├── time_utils.py
+│   ├── visual_utils.py
+│   ├── notify.py
+│   └── send_mail.py
+├── tests/                    
+│   ├── test_file_utils.py
+│   └── test_video_processor.py
+├── .streamlit/
+│   └── config.toml            
+├── .env                       
+├── requirements.txt
+├── Dockerfile
+└── README.md
 ```
 
 ---
